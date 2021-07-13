@@ -1,25 +1,41 @@
-import logo from './logo.svg';
+import { useRef, useEffect } from "react";
+
+import { initWidgets } from './widgets';
+
 import './App.css';
 
+const itemId = 'aa1d3f80270146208328cf66d022e09c';
+
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const mapDiv = useRef(null);
+
+  async function loadMap(container) {
+    const [
+      {default: WebMap}, {default: MapView}
+    ] = await Promise.all([
+      import('@arcgis/core/WebMap'),
+      import('@arcgis/core/views/MapView')
+    ]);
+
+    const map = new WebMap({
+      portalItem: {
+        id: itemId
+      }
+    });
+
+    const view = new MapView({
+      map,
+      container
+    });
+
+    initWidgets(view);
+  }
+
+  useEffect(() => {
+    loadMap(mapDiv.current)
+  }, [mapDiv]);
+
+  return <div className="mapDiv" data-testid="map" ref={mapDiv}></div>;
 }
 
 export default App;
